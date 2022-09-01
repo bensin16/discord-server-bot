@@ -2,7 +2,7 @@ from interactions import ActionRow, Button, ButtonStyle, CommandContext, Client,
 
 from MCManager import MCManager
 
-from Secrets import my_token, test_server_id
+from Secrets import calamity, my_token, test_server_id
 
 import sqlite3
 
@@ -34,7 +34,7 @@ class Bot:
         @self._bot.command(
             name="buttons",
             description="Spawns start and stop buttons",
-            scope = test_server_id,
+            scope = [test_server_id, calamity]
         )
         async def buttons(ctx):
             await ctx.send("Status message (# players, server offline, etc)", components=row)
@@ -46,12 +46,13 @@ class Bot:
 
         @self._bot.component("stop")
         async def button_response(ctx):
+            self._manager.StopServer()
             await ctx.send("stop_clicked")
 
         @self._bot.command(
             name="coords",
             description="View or Add to coordinates database",
-            scope=test_server_id,
+            scope=[test_server_id, calamity],
             options=[
                 Option(
                     name="add",

@@ -2,12 +2,23 @@ import asyncio
 import threading
 
 class MCServerThread(threading.Thread):
-    def __init__(self, thread_name, thread_id):
+    def __init__(self, queue):
         threading.Thread.__init__(self)
-        self.thread_name = thread_name
-        self.thread_id = thread_id
+        self.queue = queue
 
     def run(self):
+        while True:
+            val = None
+            if len(self.queue):
+                val = self.queue.pop(0)
+            if val is None:
+                return
+            elif val == "START":
+                self._run_server_command()
+            elif val == "STOP":
+                print("stop called")
+            
+    def _run_server_command(self):
         print(self.execute(
             ['java', '-Xmx1024M', '-Xms1024M', '-jar', 'server.jar', 'nogui'],
             lambda x: print("STDOUT: %s" % x), # use this to define how we will process stdout from server
