@@ -42,12 +42,12 @@ class Bot:
         @self._bot.component("start")
         async def button_response(ctx):
             res = self._manager.StartServer()
-            await ctx.send(res, ephemeral=True) #ephemeral=True makes it only message u back
+            await ctx.send(res, ephemeral=True) #ephemeral=True makes it message only u back
 
         @self._bot.component("stop")
         async def button_response(ctx):
-            self._manager.StopServer()
-            await ctx.send("stop_clicked")
+            res = self._manager.StopServer()
+            await ctx.send(res, ephemeral=True)
 
         @self._bot.command(
             name="coords",
