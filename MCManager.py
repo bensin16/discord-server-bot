@@ -3,9 +3,6 @@ from MCServerThread import MCServerThread
 
 from queue import Queue
 
-server_jar_location = 'server.jar'
-mc_server_args = ['java', '-Xmx1024M', '-Xms1024M', '-jar', server_jar_location, 'nogui'],
-
 class MCManager:
     def __init__(self, bot):
         self.bot = bot
@@ -24,7 +21,7 @@ class MCManager:
     def stop_server(self):
         if self.thread and self.thread.is_alive():
             self._command_queue.append("STOP")
-            self.thread.join()
+            self.thread.join() 
             return "Server Stop command sent"
 
         return "Server thread not running"
@@ -32,5 +29,7 @@ class MCManager:
     def send_command(self, msg):
         if self.thread:
             self._command_queue.append("SAY")
-            return "SAY command sent"
+            return "SAY {} command sent".format(msg)
+        
+        return "Server thread not running"
 

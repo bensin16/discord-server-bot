@@ -19,13 +19,7 @@ class MCServerThread(threading.Thread):
     def _stdout_callback(self, x):
         print("STDOUT: %s" % x)
         if "Done" in x.decode():
-            # self.loop.create_task(self.manager.send_message("message sent from thread"))
-
-            # print("Done! found lmaooo")
-            # print("Sending 'help'")
-            # self.loop.create_task(self._write_to_stream(self.process.stdin, f'help\n'))
-            self.loop.create_task(self._check_message_queue())
-            # print("help sent")
+            self.loop.create_task(self._check_message_queue()) #start up message processing after server has started
 
     async def _check_message_queue(self):
         while True:
