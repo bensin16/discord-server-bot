@@ -9,7 +9,7 @@ import sqlite3
 class Bot:
     def __init__(self):
         self._bot = Client(token=my_token)
-        self._manager = MCManager()
+        self._manager = MCManager(self)
 
         self._SetupCommands()
         self._bot.start()
@@ -41,12 +41,12 @@ class Bot:
 
         @self._bot.component("start")
         async def button_response(ctx):
-            res = self._manager.StartServer()
+            res = self._manager.start_server()
             await ctx.send(res, ephemeral=True) #ephemeral=True makes it message only u back
 
         @self._bot.component("stop")
         async def button_response(ctx):
-            res = self._manager.StopServer()
+            res = self._manager.stop_server()
             await ctx.send(res, ephemeral=True)
 
         @self._bot.command(
@@ -103,6 +103,22 @@ class Bot:
                 await ctx.send(f"You selected the Add sub command and put in {description} at X: {xcoord} Y: {ycoord} Z: {zcoord} in the {dimension}")
             elif sub_command == "view":
                 await ctx.send(f"You selected the View sub command")
+
+        @self._bot.command(
+            name="say",
+            description="say something in server",
+            scope=test_server_id,
+            options=[
+                Option(
+                    name="msg",
+                    description="content of msg",
+                    type=OptionType.STRING,
+                    required=True,
+                ),
+            ],
+        )
+        async def say(ctx: CommandContext, msg: str):
+            self._manager.send_command("SAY")
 
 
 if __name__ == "__main__":
