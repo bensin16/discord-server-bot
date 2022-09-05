@@ -2,10 +2,9 @@ import asyncio
 import threading
 
 class MCServerThread(threading.Thread):
-    def __init__(self, queue, manager):
+    def __init__(self, queue):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.manager = manager
         self.loop = None
         self.process = None
 

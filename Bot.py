@@ -1,15 +1,15 @@
 from interactions import ActionRow, Button, ButtonStyle, CommandContext, Client, Option, OptionType
 
+from CoordsDB import CoordsDB
 from MCManager import MCManager
 
-from Secrets import calamity, my_token, test_server_id
-
-import sqlite3
+from Secrets import calamity, gaiss, my_token, test_server_id
 
 class Bot:
     def __init__(self):
         self._bot = Client(token=my_token)
         self._manager = MCManager(self)
+        self._db = CoordsDB()
 
         self._SetupCommands()
         self._bot.start()
@@ -34,25 +34,25 @@ class Bot:
         @self._bot.command(
             name="buttons",
             description="Spawns start and stop buttons",
-            scope = [test_server_id, calamity]
+            scope = [test_server_id, calamity, gaiss]
         )
         async def buttons(ctx):
-            await ctx.send("Status message (# players, server offline, etc)", components=row)
+            await ctx.send("Status message (# players, server offline, etc)", components=row, ephemeral=True)
 
         @self._bot.component("start")
-        async def button_response(ctx):
+        async def start(ctx):
             res = self._manager.start_server()
             await ctx.send(res, ephemeral=True) #ephemeral=True makes it message only u back
 
         @self._bot.component("stop")
-        async def button_response(ctx):
+        async def stop(ctx):
             res = self._manager.stop_server()
-            await ctx.send(res, ephemeral=True)
+            await ctx.send("endies!", ephemeral=True)
 
         @self._bot.command(
             name="coords",
             description="View or Add to coordinates database",
-            scope=[test_server_id, calamity],
+            scope=[test_server_id, calamity, gaiss],
             options=[
                 Option(
                     name="add",
@@ -84,7 +84,7 @@ class Bot:
                             required=True
                         ),
                         Option(
-                            name="dimension",
+                            name="dim",
                             description="what dimension is this in? Can be Overworld, Nether, or End",
                             type=OptionType.STRING,
                             required=True
@@ -98,27 +98,16 @@ class Bot:
                 ),
             ],
         )
-        async def coords(ctx: CommandContext, sub_command: str, xcoord: int=0, ycoord: int=0, zcoord: int=0, description: str="", dimension: str=""):
+        async def coords(ctx: CommandContext, sub_command: str, xcoord: int=0, ycoord: int=0, zcoord: int=0, desc: str="", dimension: str=""):
             if sub_command == "add":
-                await ctx.send(f"You selected the Add sub command and put in {description} at X: {xcoord} Y: {ycoord} Z: {zcoord} in the {dimension}")
+                res = self._db.add_coord(xcoord, ycoord, zcoord, desc, dimension)
+                await ctx.send(f"You added coords: {desc} at X: {xcoord} Y: {ycoord} Z: {zcoord} in the {dimension}", ephemeral=True)
             elif sub_command == "view":
-                await ctx.send(f"You selected the View sub command")
-
-        @self._bot.command(
-            name="say",
-            description="say something in server",
-            scope=test_server_id,
-            options=[
-                Option(
-                    name="msg",
-                    description="content of msg",
-                    type=OptionType.STRING,
-                    required=True,
-                ),
-            ],
-        )
-        async def say(ctx: CommandContext, msg: str):
-            self._manager.send_command("SAY")
+                res = self._db.execute_query("select * from coords")
+                outstr = ""
+                for coord in res:
+                    outstr += str(coord)
+                await ctx.send("coords: " + outstr, ephemeral=True)
 
 
 if __name__ == "__main__":
